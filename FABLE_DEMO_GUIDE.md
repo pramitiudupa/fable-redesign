@@ -5,7 +5,7 @@
 - Use a visible Android device or emulator and install `app/build/outputs/apk/debug/app-debug.apk`.
 - For the complete demonstration, configure the Firebase Android app (`app/google-services.json`), enable Email/Password Authentication, create Firestore, and deploy the current `firestore.rules`.
 - Prepare two test accounts and establish one friend relationship before class if you want to show the friends list and activity feed quickly.
-- Configure a restricted Google Books API key through a local Gradle property or environment variable named `GOOGLE_BOOKS_API_KEY`; verify quota before presenting.
+- Book discovery uses Open Library and needs no API key. Confirm the emulator has internet access before presenting book search.
 - Keep personal notes and real email addresses out of projected public screens. Use test accounts and non-sensitive demo text.
 - Do not describe the unconfigured sign-in screen as successful authentication, or local pending indicators as cloud synchronization.
 
@@ -51,9 +51,9 @@ For a strict five-minute slot, pre-establish the friendship, omit profile editin
 
 The app displays “Firebase setup is required” on the signed-out screen. Use this only to explain that authentication is real Firebase Auth and the workspace has no project config. Do not claim sign-in, profile data, shelves, reviews, friendships, activity, or cloud sync were demonstrated. Theme selection and local anonymous theme persistence can still be shown. For the complete sequence, set up a Firebase project and two test accounts before class.
 
-### Google Books quota or network unavailable
+### Open Library or network unavailable
 
-Show the handled error state and explain that a prior anonymous request hit HTTP 429. If a matching cached result is available, demonstrate that fallback and label it as cached data. Do not claim a successful live API result without one. The preferred fallback is to configure a restricted API key and check quota before the session.
+Show the handled error state. If a matching cached result is available, demonstrate that fallback and label it as cached data. Open Library needs no API key, but the emulator must have internet access and the service can rate-limit requests.
 
 ### Emulator screenshot or touch problems
 

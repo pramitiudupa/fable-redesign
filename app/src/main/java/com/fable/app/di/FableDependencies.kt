@@ -1,12 +1,11 @@
 package com.fable.app.di
 
 import android.content.Context
-import com.fable.app.BuildConfig
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.fable.app.data.repository.FirebaseAuthenticationRepository
 import com.fable.app.data.repository.FirestoreUserRepository
-import com.fable.app.data.repository.GoogleBooksRepository
+import com.fable.app.data.repository.OpenLibraryBookRepository
 import com.fable.app.data.repository.FirestoreReadingRepository
 import com.fable.app.data.repository.FirestoreReviewRepository
 import com.fable.app.data.repository.FirestoreSocialRepository
@@ -62,10 +61,9 @@ class FableDependencies(context: Context) {
         val database = Room.databaseBuilder(context.applicationContext, FableDatabase::class.java, "fable.db")
             .addMigrations(FableDatabase.MIGRATION_1_2, FableDatabase.MIGRATION_2_3)
             .build()
-        bookRepository = GoogleBooksRepository(
-            BooksNetworkModule.createGoogleBooksService(),
+        bookRepository = OpenLibraryBookRepository(
+            BooksNetworkModule.createOpenLibraryService(),
             database.bookDao(),
-            BuildConfig.GOOGLE_BOOKS_API_KEY.takeIf(String::isNotBlank),
         )
         if (firebaseConfigured) {
             authenticationRepository = FirebaseAuthenticationRepository(FirebaseAuth.getInstance())

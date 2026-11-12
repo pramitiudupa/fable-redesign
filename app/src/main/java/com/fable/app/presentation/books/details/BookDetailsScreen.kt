@@ -91,7 +91,7 @@ fun BookDetailsScreen(dependencies: FableDependencies, userId: String, username:
                 book.previewLink?.let { url ->
                     Button(onClick = {
                         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    }) { Text("Preview on Google Books") }
+                    }) { Text("View on Open Library") }
                 }
                 val libraryEntry = readingState.books.firstOrNull { it.bookId == book.id }
                 Text("Your shelf", style = MaterialTheme.typography.titleLarge)

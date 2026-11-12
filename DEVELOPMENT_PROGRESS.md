@@ -43,8 +43,8 @@
 ### Completed
 
 - Added a source-qualified Book domain model, paging model, repository boundary, and search/discovery/detail use cases.
-- Integrated Google Books volumes search and detail endpoints through Retrofit, with query modes for title, author, ISBN, subject, and general discovery.
-- Added safe DTO parsing and mapping, query builder, optional API key support, request timeouts, quota/HTTP/network handling, and Room cache/history persistence.
+- Integrated Open Library Search and Works endpoints through Retrofit, with query modes for title, author, ISBN, subject, and general discovery.
+- Added safe DTO parsing and mapping, work-based stable IDs, cover URLs, request timeouts, HTTP/network handling, and Room cache/history persistence.
 - Added authenticated Discover, Search, Genre, and Book Details destinations; reusable book cards/covers/carousels/grids, genre chips, and loading/empty/error states.
 - Implemented debounced typed search, recent searches, duplicate-safe pagination, cover fallbacks, metadata display, and preview links.
 - Did not add production sample content or fabricated popularity values.
@@ -52,8 +52,7 @@
 
 ### Configuration and live API limitation
 
-- An optional `GOOGLE_BOOKS_API_KEY` can be supplied as a local Gradle property or environment variable. See README for setup and key restrictions.
-- An anonymous request to Google Books returned HTTP 429 because the caller's daily quota was zero. Error and cache fallback behavior is implemented; a successful live response is not claimed.
+- Open Library is used without an API key. Search, work details, and cover endpoints were reachable during implementation; runtime results can still be rate-limited by Open Library. Search responses are cached in Room and used as an offline fallback.
 - Firebase configuration is still absent, so live authentication remains unverified as documented in Phase 2.
 
 ### Verification
@@ -62,7 +61,7 @@
 - 18 JVM unit tests passed; 0 failures, 0 errors, 0 skipped (11 Phase 3 tests and 7 Phase 2 tests).
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`.
 - Build used JDK 21, Android SDK 36, Gradle 8.13, Kotlin 2.4.21. Gradle emitted the existing forward-looking warning that Kotlin 2.5 will require Gradle 8.14.4; this did not block the build.
-- The build and unit tests do not validate live Firebase or successful Google Books connectivity; the anonymous Google Books request was rate-limited as noted above.
+- The build and unit tests do not validate live Firebase or runtime Open Library availability.
 
 ## Phase 4 — Personal library and reading tracker
 
@@ -80,7 +79,7 @@
 
 - Firebase config is still absent; Firestore rules have not been deployed or checked against a live Firebase project. Live read/write, offline queue recovery, and multi-device synchronization are not claimed as verified.
 - Unsynced changes are retained in Room with a visible pending marker. The Firestore Android SDK queues offline writes; the app clears Room's marker only when the corresponding edit version is acknowledged.
-- Firestore library entries store a book metadata snapshot alongside progress to preserve details while offline; changes to Google Books metadata are reflected when the book is re-added, not continuously refreshed into a saved snapshot.
+- Firestore library entries store a book metadata snapshot alongside progress to preserve details while offline; provider metadata is reflected when the book is re-added, not continuously refreshed into a saved snapshot.
 
 ### Verification
 
@@ -175,7 +174,7 @@ Broader integration testing, release verification, and live Firebase/rules verif
 
 ### Completed
 
-- Audited the existing auth/profile, Google Books, Room cache, library/progress, review, social, activity, theme, navigation, repository, schema/migration, and Firestore rules paths without recreating the app or changing its database schema.
+- Audited the existing auth/profile, book API, Room cache, library/progress, review, social, activity, theme, navigation, repository, schema/migration, and Firestore rules paths without recreating the app or changing its database schema.
 - Confirmed account-owned Room library/review rows and theme preferences use UID-scoped keys; the anonymous theme key is separate. Book metadata and search history remain device-wide caches.
 - Fixed a review error-state defect: Firestore review snapshot listener errors were ignored and could look like an empty feed. Both book review and personal review listeners now propagate listener errors to the ViewModel. Previously received cached reviews remain in UI state when the ViewModel shows the error.
 - Added a regression test for a review-feed failure after a cached review emission.
@@ -192,7 +191,7 @@ Broader integration testing, release verification, and live Firebase/rules verif
 ### Remaining limitations
 
 - Firebase configuration is absent. Authentication, Firestore writes/reads, deployed rules, account switching with real accounts, sync/reconnect, friend-only visibility, and cloud theme synchronization were not live-tested.
-- The anonymous Google Books quota was rate-limited in Phase 3. Phase 8 did not repeat requests to avoid unnecessary quota usage. Search mapping, errors, and cache fallback are unit-tested, but successful live search, pagination, and cover loading need a configured API/quota.
+- At that point, Google Books had been rate-limited in Phase 3. Phase 8 did not repeat requests. The book provider was subsequently changed to Open Library, which requires no API key; current runtime availability can still vary with network and rate limits.
 - Full device UI interaction, visual rendering, and lecturer demonstration of authenticated workflows still require manual verification on a configured device/project.
 - Phase 8 was complete before the final packaging phase.
 
@@ -217,5 +216,5 @@ Broader integration testing, release verification, and live Firebase/rules verif
 ### Remaining limitations
 
 - Firebase project configuration is unavailable; live account and Firestore behaviors/security rules remain unverified.
-- Successful Google Books live retrieval remains unverified; a prior anonymous request hit HTTP 429 quota limits.
+- Successful Open Library access in the Android app remains unverified; the public search endpoint was reachable during the provider change.
 - The headless emulator produced a black screenshot and unreliable touch input; manual visual/device verification remains advisable.

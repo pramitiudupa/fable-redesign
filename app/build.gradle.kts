@@ -19,10 +19,6 @@ if (appGoogleServices.exists()) {
     apply(plugin = libs.plugins.google.services.get().pluginId)
 }
 
-val googleBooksApiKey = providers.gradleProperty("GOOGLE_BOOKS_API_KEY")
-    .orElse(providers.environmentVariable("GOOGLE_BOOKS_API_KEY"))
-    .getOrElse("")
-
 android {
     namespace = "com.fable.app"
     compileSdk = 36
@@ -33,8 +29,6 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "GOOGLE_BOOKS_API_KEY", "\"$googleBooksApiKey\"")
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

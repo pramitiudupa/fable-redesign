@@ -21,10 +21,10 @@ Jetpack Compose screens and Navigation
           ↙                  ↘
  Room local cache          Data adapters
                          Firebase Auth/Firestore
-                         Google Books API
+                         Open Library API
 ```
 
-Room stores cached books, search history, user-scoped library records, and review records. Firebase-backed repositories own account, profile, reading, review, and social synchronization. Google Books is accessed through Retrofit. Local code and automated tests are present for these flows, but the cloud services require their own configuration and have not been live-verified here. See [ARCHITECTURE.md](ARCHITECTURE.md) for data flows and boundaries.
+Room stores cached books, search history, user-scoped library records, and review records. Firebase-backed repositories own account, profile, reading, review, and social synchronization. Open Library book search and details are accessed through Retrofit. Local code and automated tests are present for these flows, but Firebase cloud services require their own configuration and have not been live-verified here. See [ARCHITECTURE.md](ARCHITECTURE.md) for data flows and boundaries.
 
 ## Features implemented
 
@@ -34,7 +34,7 @@ Room stores cached books, search history, user-scoped library records, and revie
 - Transactional Firestore username reservation plus profile creation; a failed profile write removes the newly created Auth account where possible.
 - Own-profile observation and updates, including username changes with atomic reservation transfer.
 - Firestore security rules for profile ownership and username reservations.
-- Google Books search by title, author, ISBN, subject, and general query, with paginated results and genre collections.
+- Open Library search by title, author, ISBN, subject, and general query, with paginated results and genre collections.
 - Book detail screens, robust DTO mapping, shared source-qualified book IDs, Room-backed result caching, and up to ten recent searches.
 - Debounced search with search-type filters, duplicate-safe pagination, image fallbacks, and network/HTTP error states.
 - Personal Want to Read, Currently Reading, and Read shelves with library search, category filters, sorting, moves, removals, and book-detail links.
@@ -50,7 +50,7 @@ Room stores cached books, search history, user-scoped library records, and revie
 
 - Kotlin 2.4.21, Jetpack Compose, Material 3, MVVM and Clean Architecture boundaries.
 - Firebase Authentication and Cloud Firestore, managed with Firebase BoM 35.1.0.
-- Google Books API through Retrofit/OkHttp, with Room for local book cache and search history.
+- Open Library Search, Works, and Covers APIs through Retrofit/OkHttp, with Room for local book cache and search history.
 - Coroutines and Flow; manually wired dependency composition to keep the dependency setup small.
 - Gradle 8.13 wrapper, Android SDK 36, Java 17 bytecode target.
 
@@ -96,11 +96,9 @@ Book Details shows the Fable average, rating/review count, reviewer usernames, s
 - Firestore's Android offline queue and the Room pending marker retain writes while offline. A Firestore listener refreshes clean cached entries; pending local edits win until uploaded. Network or rules failures leave pending edits visible as “Waiting to sync”. Live Firebase synchronization is unverified because this workspace has no Firebase project configuration.
 - Statistics come from saved records: completed books count distinct shelf entries with completion history; pages include recorded completion page counts and current page progress; monthly activity follows completion dates. No reading values are generated when the library has no records.
 
-## Google Books setup
+## Book discovery
 
-The discovery engine builds without an API key, but a key may be needed when Google Books quota or project policy requires it. Enable the Google Books API in a Google Cloud project, create and restrict an API key to that API, then provide it locally as either a Gradle property or environment variable named `GOOGLE_BOOKS_API_KEY`. For example, add `GOOGLE_BOOKS_API_KEY=your-key` to `%USERPROFILE%\.gradle\gradle.properties` (outside this repository), or set the environment variable before building. The key is read into the app at build time; restrict it appropriately and do not commit it. Google Books supports `intitle:`, `inauthor:`, `isbn:`, and `subject:` query prefixes, and pagination uses `startIndex` with `maxResults` up to 40 ([API documentation](https://developers.google.com/books/docs/v1/using)).
-
-Without a key, Google Books may reject requests depending on the caller's quota. An anonymous live request during Phase 3 verification returned HTTP 429 with the public caller's daily quota at zero. The app handles quota/HTTP failures and can show cached search results, but a successful live response was not verified in this environment.
+Book search, genre discovery, book details, and cover images use the public [Open Library Search API](https://openlibrary.org/dev/docs/api/search), Works API, and [Covers API](https://openlibrary.org/dev/docs/api/covers). No API key or extra Gradle configuration is required. Search results are cached in Room and remain available offline when a matching cached result exists. Open Library asks clients to cache results, identify the application, and keep requests human-driven; the API is intended for low-volume discovery and may rate-limit requests.
 
 ## Build and test
 
@@ -122,7 +120,7 @@ For a quicker incremental build, run:
 
 The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
-58 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, Phase 6 social behavior, and Phase 7 theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Tests do not prove live Firebase behavior, deployed security rules, or a successful live Google Books response. See [FINAL_TEST_REPORT.md](FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
+58 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, Phase 6 social behavior, and Phase 7 theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Tests do not prove live Firebase behavior, deployed security rules, or successful runtime access to Open Library. See [FINAL_TEST_REPORT.md](FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
 
 ## Demonstration and screenshots
 
@@ -130,4 +128,4 @@ Use [FABLE_DEMO_GUIDE.md](FABLE_DEMO_GUIDE.md) for a five-to-seven-minute lectur
 
 ## Remaining work
 
-Lecturer demonstrations of authenticated workflows require a configured Firebase project, deployed rules, at least two test accounts for social flows, and working Google Books quota. Without that configuration, the sign-in screen remains usable for viewing theme selection, but real account, library, review, and social actions are intentionally unavailable. Further limitations are recorded in [FINAL_PROJECT_REPORT.md](FINAL_PROJECT_REPORT.md).
+Lecturer demonstrations of authenticated workflows require a configured Firebase project, deployed rules, and at least two test accounts for social flows. Book discovery uses Open Library without a key and requires internet access. Without Firebase configuration, the sign-in screen remains usable for viewing theme selection, but real account, library, review, and social actions are intentionally unavailable. Further limitations are recorded in [FINAL_PROJECT_REPORT.md](FINAL_PROJECT_REPORT.md).

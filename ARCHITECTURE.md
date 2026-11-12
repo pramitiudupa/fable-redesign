@@ -11,7 +11,7 @@ presentation  ->  domain  <-  data
 
 - **Presentation** contains Compose screens and ViewModels. ViewModels consume domain repositories/use cases and expose `StateFlow` UI/session state.
 - **Domain** contains app models, repository interfaces, validation, and use cases. It does not depend on Firebase or Compose.
-- **Data** implements domain repository interfaces. Firebase Auth and Firestore are confined to Firebase repository implementations; Retrofit, Google Books DTOs/mappers, and Room persistence implement book discovery and personal reading below the domain boundary.
+- **Data** implements domain repository interfaces. Firebase Auth and Firestore are confined to Firebase repository implementations; Retrofit, Open Library DTOs/mappers, and Room persistence implement book discovery and personal reading below the domain boundary.
 - **DI** is the small composition root that chooses Firebase implementations when Firebase is configured and safe unavailable implementations otherwise.
 - **Navigation** is an auth-aware Compose root. Authenticated users reach Home, Discover, Search, category results, Book Details, My Library, Reading Progress, My Reviews, reader discovery/profiles, friend requests, Friends, and the activity feed through the navigation graph.
 
@@ -20,7 +20,7 @@ presentation  ->  domain  <-  data
 ```text
 com.fable.app/
   data/local/                  Room database, book cache and search history
-  data/remote/googlebooks/     Retrofit service, Google Books DTOs and mapping
+  data/remote/openlibrary/    Retrofit service, Open Library DTOs and mapping
   data/remote/firestore/       UserBook and BookReview DTOs, mappers and stable document IDs
   data/repository/             Firebase Auth, Firestore, book, reading, review and social repositories
   di/                          dependency selection and ViewModel factory
@@ -47,10 +47,10 @@ com.fable.app/
 
 ## Book discovery data flow
 
-- `BookRepository` is the domain boundary for discovery, typed search, book details, and recent searches. The Google Books implementation is replaceable without changing screens or ViewModels.
-- Retrofit calls the Google Books volumes API. DTO mapping validates required identifiers/titles, safely handles optional metadata, normalizes cover URLs, and generates IDs from source plus source ID rather than titles.
+- `BookRepository` is the domain boundary for discovery, typed search, book details, and recent searches. The Open Library implementation can be replaced without changing screens or ViewModels.
+- Retrofit calls Open Library Search and Works endpoints; covers load from Open Library Covers. DTO mapping validates required work identifiers/titles, handles optional metadata, and generates stable IDs from the provider work ID rather than titles.
 - Room caches result pages and up to ten recent queries. Search screens debounce input, guard pagination, and remove duplicate books. Cached results can be returned if a request fails.
-- Google Books credentials are optional and supplied via `GOOGLE_BOOKS_API_KEY` Gradle property or environment variable. Build-time configuration is documented in README. A public anonymous API request during verification was rate-limited (HTTP 429), so live success requires a configured project/key and quota.
+- Open Library is public and requires no API key. Requests include an application User-Agent; the repository caches books and falls back to Room when the service is unavailable. Open Library may rate-limit traffic and is intended for human-driven, low-volume discovery.
 - Discover collections use API results; the app does not insert sample books or invent trending statistics. The popular discoveries group is sorted from the API-provided ratings count when available.
 
 ## Personal library and synchronization
@@ -83,7 +83,7 @@ com.fable.app/
 ## Phase 8 integration audit notes
 
 - Room library and review rows are keyed by authenticated UID; repositories receive that UID from the authenticated navigation/session layer. Shared theme preferences are UID-keyed, with a separate anonymous key. Search history and book metadata cache are intentionally device-wide because they contain no user-authored private data.
-- Firebase Auth/Firestore and Google Books are adapters behind repository interfaces. Without their configuration/network, the app uses explicit unavailable auth, library, review, and social adapters or cached book results; it does not fabricate accounts or cloud records.
+- Firebase Auth/Firestore and Open Library are adapters behind repository interfaces. Without Firebase configuration or network access, the app uses explicit unavailable auth, library, review, and social adapters or cached book results; it does not fabricate accounts or cloud records.
 - Review snapshot listener errors now close the repository flow with the underlying failure. The review ViewModel surfaces the message while preserving already-emitted cached reviews, instead of silently presenting a sync failure as an empty review list. A unit regression test covers this state; live listener behavior still needs a configured Firebase project.
 - Phase 8 did not change Room schema version 3 or Firestore rules. Rules were inspected as source but not evaluated by the Firebase emulator or deployed project.
 

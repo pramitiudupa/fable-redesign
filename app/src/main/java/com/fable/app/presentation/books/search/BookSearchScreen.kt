@@ -71,7 +71,7 @@ fun BookSearchScreen(
             }
         }
         when {
-            state.isLoading -> LoadingIndicator("Searching Google Books…", Modifier.weight(1f))
+            state.isLoading -> LoadingIndicator("Searching books…", Modifier.weight(1f))
             state.error != null && state.books.isEmpty() -> ErrorState(state.error.orEmpty(), viewModel::submitSearch, Modifier.weight(1f))
             state.error != null -> {
                 Text(state.error.orEmpty(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)

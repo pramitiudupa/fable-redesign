@@ -45,7 +45,7 @@ fun DiscoverScreen(
         item {
             Column(Modifier.padding(horizontal = 20.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Discover", style = MaterialTheme.typography.headlineMedium)
-                Text("Find your next read in Google Books.", style = MaterialTheme.typography.bodyLarge)
+                Text("Find your next read in Open Library.", style = MaterialTheme.typography.bodyLarge)
                 androidx.compose.material3.OutlinedButton(onClick = onSearchClick, modifier = Modifier.fillMaxWidth()) {
                     Text("Search books, authors, or ISBN")
                 }
@@ -76,7 +76,7 @@ fun DiscoverScreen(
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             SectionTitle("Popular discoveries")
                             Text(
-                                "Ordered by Google Books rating count where available.",
+                                "Ordered by reader rating count where available.",
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(horizontal = 16.dp),
                             )
