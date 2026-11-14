@@ -338,12 +338,18 @@ private fun BookDetailsContent(
     }
 }
 
+private val YearPattern = Regex("""\b(1[0-9]|20)[0-9]{2}\b""")
+
+/** The four-digit year inside a free-form publication date, or null if there is none. */
+internal fun publicationYear(date: String): String? = YearPattern.find(date)?.value
+
 /** Pages · Published · Language · Publisher — a magazine-style facts strip with hairline dividers. */
 @Composable
 private fun FactStrip(book: Book, colors: GenreColors) {
     val facts = listOfNotNull(
         book.pageCount?.let { it.toString() to "Pages" },
-        book.publishedDate?.let { it.take(4) to "Published" },
+        // Open Library dates come as "1937", "Sep 21, 1937" or "January 1937": show just the year.
+        book.publishedDate?.let { publicationYear(it) }?.let { it to "Published" },
         book.language?.let { it.uppercase().take(3) to "Language" },
     )
     if (facts.isEmpty()) return
