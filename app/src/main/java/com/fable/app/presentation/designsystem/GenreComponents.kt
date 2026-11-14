@@ -1,5 +1,21 @@
 package com.fable.app.presentation.designsystem
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import com.fable.app.presentation.theme.FableMotion
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -101,8 +117,11 @@ fun GenreBadgeRow(match: GenreMatch, modifier: Modifier = Modifier, compact: Boo
 }
 
 /**
- * A genre tile with its own atmosphere: deep gradient, signature motif, large ornament and
- * serif label. Used in the Discover mosaic and on Home.
+ * A genre tile built from real book covers: one cover fills the tile as a soft backdrop,
+ * a fan of up to three covers from that genre stands in front, and the genre's own colour
+ * gradient washes over the bottom so the serif label always reads. Covers come from Open
+ * Library via [GenreArtworkViewModel]; until they arrive (or if they can't load) the tile
+ * shows the genre's gradient and motif instead.
  */
 @Composable
 fun GenreTile(
@@ -115,6 +134,11 @@ fun GenreTile(
     val interaction = remember { MutableInteractionSource() }
     val haptics = rememberFableHaptics()
     val tokens = FableThemeTokens.current
+    val artwork = LocalGenreArtwork.current
+    LaunchedEffect(artwork, genre) { artwork?.request(genre) }
+    val allCovers = artwork?.covers?.collectAsState()?.value
+    val covers = allCovers?.get(genre).orEmpty()
+    val ink = colors.coverGradient.last()
     Surface(
         onClick = {
             haptics.tap()
@@ -124,28 +148,66 @@ fun GenreTile(
         shape = MaterialTheme.shapes.large,
         color = Color.Transparent,
         interactionSource = interaction,
-        shadowElevation = 4.dp,
+        shadowElevation = 6.dp,
     ) {
-        Box(
+        BoxWithConstraints(
             Modifier
                 .fillMaxSize()
                 .background(colors.coverBrush)
-                .drawBehind { drawCoverMotif(colors.motif, colors.onCover.copy(alpha = 0.16f), colors.accent, genre.ordinal) }
-                .padding(if (large) 18.dp else 14.dp),
+                .drawBehind {
+                    if (covers.isEmpty()) drawCoverMotif(colors.motif, colors.onCover.copy(alpha = 0.16f), colors.accent, genre.ordinal)
+                },
         ) {
-            Text(
-                colors.ornament,
-                color = colors.accent,
-                style = if (large) MaterialTheme.typography.displaySmall else MaterialTheme.typography.headlineMedium,
-                // Top-start keeps the ornament clear of motifs that bloom in the top-right corner.
-                modifier = Modifier.align(Alignment.TopStart),
+            val tileWidth = maxWidth
+            val tileHeight = maxHeight
+            AnimatedVisibility(
+                visible = covers.isNotEmpty(),
+                enter = fadeIn(tween(FableMotion.LONG_MS)) + slideInVertically(tween(FableMotion.LONG_MS, easing = FableMotion.EmphasizedDecelerate)) { it / 8 },
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                Box(Modifier.fillMaxSize()) {
+                    // Full-bleed backdrop from the first cover, tinted by the genre.
+                    AsyncImage(
+                        model = covers.firstOrNull(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize().graphicsLayer {
+                            alpha = 0.42f
+                            scaleX = 1.15f
+                            scaleY = 1.15f
+                        },
+                    )
+                    Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(ink.copy(alpha = 0.25f), ink.copy(alpha = 0.55f)))))
+                    CoverFan(
+                        covers = covers,
+                        tileWidth = tileWidth,
+                        tileHeight = tileHeight,
+                        large = large,
+                        accent = colors.accent,
+                    )
+                }
+            }
+            // Genre wash under the label.
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .fillMaxHeight(if (large) 0.75f else 0.55f)
+                    .background(Brush.verticalGradient(listOf(Color.Transparent, ink.copy(alpha = 0.85f), ink.copy(alpha = 0.97f)))),
             )
-            Column(Modifier.align(Alignment.BottomStart), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Column(
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth(if (large) 0.55f else 1f)
+                    .padding(if (large) 18.dp else 14.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(colors.ornament, color = colors.accent, style = MaterialTheme.typography.titleMedium)
                 Text(
                     genre.label,
                     style = (if (large) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleLarge)
                         .copy(fontFamily = tokens.bookTitleFont, fontStyle = FontStyle.Normal),
-                    color = colors.onCover,
+                    color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -153,11 +215,60 @@ fun GenreTile(
                     Text(
                         genre.tagline,
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.onCover.copy(alpha = 0.82f),
+                        color = Color.White.copy(alpha = 0.82f),
                         maxLines = 2,
                     )
                 }
             }
+        }
+    }
+}
+
+/** Up to three real covers fanned like books propped on a display table. */
+@Composable
+private fun CoverFan(
+    covers: List<String>,
+    tileWidth: androidx.compose.ui.unit.Dp,
+    tileHeight: androidx.compose.ui.unit.Dp,
+    large: Boolean,
+    accent: Color,
+) {
+    val coverHeight = if (large) tileHeight * 0.80f else tileHeight * 0.50f
+    val coverWidth = coverHeight * 0.66f
+    // Small tiles fan across the top centre; wide tiles fan on the right-hand side.
+    val centerX = if (large) tileWidth - coverWidth * 1.05f else tileWidth / 2
+    val top = if (large) (tileHeight - coverHeight) / 2 else 12.dp
+    val spread = coverWidth * 0.58f
+    val slots = when (covers.size) {
+        1 -> listOf(0)
+        2 -> listOf(-1, 1)
+        else -> listOf(-1, 1, 0) // the centre cover is drawn last, on top
+    }
+    Box(Modifier.fillMaxSize()) {
+        slots.forEachIndexed { index, slot ->
+            val url = covers.getOrNull(if (covers.size >= 3) listOf(1, 2, 0)[index] else index) ?: return@forEachIndexed
+            val isCentre = slot == 0
+            val shape = RoundedCornerShape(topStart = 2.dp, bottomStart = 2.dp, topEnd = 4.dp, bottomEnd = 4.dp)
+            AsyncImage(
+                model = url,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .offset(
+                        x = centerX - coverWidth / 2 + spread * slot,
+                        y = top + if (isCentre) 0.dp else coverHeight * 0.06f,
+                    )
+                    .size(width = coverWidth, height = coverHeight)
+                    .graphicsLayer {
+                        rotationZ = slot * 7f
+                        val s = if (isCentre) 1.04f else 0.94f
+                        scaleX = s
+                        scaleY = s
+                    }
+                    .shadow(if (isCentre) 14.dp else 8.dp, shape, ambientColor = Color.Black, spotColor = Color.Black)
+                    .clip(shape)
+                    .border(0.5.dp, accent.copy(alpha = 0.35f), shape),
+            )
         }
     }
 }

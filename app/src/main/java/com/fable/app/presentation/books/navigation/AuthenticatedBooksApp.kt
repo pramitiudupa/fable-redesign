@@ -80,6 +80,10 @@ import com.fable.app.presentation.designsystem.LocalSharedTransitionScope
 import com.fable.app.presentation.designsystem.OrnamentDivider
 import com.fable.app.presentation.designsystem.ReaderAvatar
 import com.fable.app.presentation.designsystem.StatusBarScrim
+import com.fable.app.presentation.designsystem.GenreArtworkViewModel
+import com.fable.app.presentation.designsystem.LocalGenreArtwork
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fable.app.presentation.designsystem.screenTopPadding
 import com.fable.app.presentation.reading.MyLibraryScreen
 import com.fable.app.presentation.reading.ReadingHomeScreen
@@ -124,6 +128,11 @@ fun AuthenticatedBooksApp(
         factory = SocialViewModelFactory(dependencies, userId, profile),
     )
     val socialState by socialViewModel.uiState.collectAsStateWithLifecycle()
+    // One cover cache for every genre tile in the signed-in app.
+    val genreArtwork: GenreArtworkViewModel = viewModel(
+        key = "genre-artwork",
+        factory = viewModelFactory { initializer { GenreArtworkViewModel(dependencies.bookRepository) } },
+    )
     val pendingRequests = socialState.incomingRequests.count { it.status == FriendRequestStatus.PENDING }
     val navEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navEntry?.destination?.route
@@ -134,7 +143,7 @@ fun AuthenticatedBooksApp(
 
     Box(Modifier.fillMaxSize()) {
         SharedTransitionLayout {
-            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this, LocalGenreArtwork provides genreArtwork) {
                 NavHost(
                     navController = navController,
                     startDestination = "home",

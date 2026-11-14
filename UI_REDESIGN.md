@@ -20,6 +20,10 @@ existing route, action and theme preference still works the same way.
 - genre badges, secondary-genre dots and filter chips
 - the book-detail hero, the genre collection header, continue-reading cards
 - shelf progress bars and reader-profile banners (from the reader's favourite genre)
+- **genre tiles built from real book covers**: each tile fans out covers of books in that genre
+  (from Open Library, via the existing `BookRepository`), over a backdrop tinted in the genre's colours.
+  Covers are fetched only when a tile is shown, cached for the session, and de-duplicated so
+  neighbouring genres don't show the same book. If covers can't load, the tile falls back to its gradient and motif.
 
 ## Screens
 Splash, Login, Register, Forgot password, Profile setup/edit, Home, Discover, Genre collection,
