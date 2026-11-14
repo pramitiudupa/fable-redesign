@@ -3,9 +3,11 @@
     <application
         android:name=".FableApplication"
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:label="Fable"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:theme="@style/Theme.Fable">
         <activity
             android:name=".MainActivity"
             android:exported="true">

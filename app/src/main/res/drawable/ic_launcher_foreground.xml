@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fable mark: an open book traced in antique gold with a small star above the spine. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M54,45 C47,39 38,39 31,42 L31,71 C38,68 47,68 54,74 C61,68 70,68 77,71 L77,42 C70,39 61,39 54,45 Z M54,45 L54,74"
+        android:strokeWidth="2.4"
+        android:strokeColor="#D7B46A"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M36,51 L48,49.5 M36,57 L48,55.5 M36,63 L48,61.5 M60,49.5 L72,51 M60,55.5 L72,57 M60,61.5 L72,63"
+        android:strokeWidth="1.4"
+        android:strokeColor="#99D7B46A"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M54,27 Q54.6,32.4 60,33 Q54.6,33.6 54,39 Q53.4,33.6 48,33 Q53.4,32.4 54,27 Z"
+        android:fillColor="#F1E8D6" />
+</vector>

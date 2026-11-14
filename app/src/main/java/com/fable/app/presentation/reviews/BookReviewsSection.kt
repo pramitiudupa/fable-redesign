@@ -1,27 +1,32 @@
 package com.fable.app.presentation.reviews
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +34,24 @@ import com.fable.app.di.FableDependencies
 import com.fable.app.di.ReviewViewModelFactory
 import com.fable.app.domain.model.Book
 import com.fable.app.domain.model.BookReview
+import com.fable.app.presentation.designsystem.BannerTone
+import com.fable.app.presentation.designsystem.Caption
+import com.fable.app.presentation.designsystem.Eyebrow
+import com.fable.app.presentation.designsystem.FableButton
+import com.fable.app.presentation.designsystem.FableCard
+import com.fable.app.presentation.designsystem.FableIcons
+import com.fable.app.presentation.designsystem.FableLoading
+import com.fable.app.presentation.designsystem.FableTextButton
+import com.fable.app.presentation.designsystem.FableTextField
+import com.fable.app.presentation.designsystem.ProgressBar
+import com.fable.app.presentation.designsystem.RatingInput
+import com.fable.app.presentation.designsystem.RatingStars
+import com.fable.app.presentation.designsystem.ReaderAvatar
+import com.fable.app.presentation.designsystem.SectionHeader
+import com.fable.app.presentation.designsystem.StatusBanner
+import com.fable.app.presentation.designsystem.rememberFableHaptics
+import com.fable.app.presentation.theme.FableMotion
+import com.fable.app.presentation.theme.FableThemeTokens
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,6 +62,7 @@ fun BookReviewsSection(
     userId: String,
     username: String,
     book: Book,
+    accent: Color = MaterialTheme.colorScheme.primary,
 ) {
     val factory = ReviewViewModelFactory(dependencies, userId, username, book.id)
     val viewModel: ReviewViewModel = viewModel(key = "reviews-${book.id}-$userId", factory = factory)
@@ -47,78 +71,151 @@ fun BookReviewsSection(
         ?: state.myReviews.firstOrNull { it.bookId == book.id }
     var ratingDraft by rememberSaveable(book.id, ownReview?.updatedAt) { mutableIntStateOf(ownReview?.rating ?: 0) }
     var reviewText by rememberSaveable(book.id, ownReview?.updatedAt) { mutableStateOf(ownReview?.reviewText.orEmpty()) }
+    val haptics = rememberFableHaptics()
+    val tokens = FableThemeTokens.current
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-        Text("Reviews", style = MaterialTheme.typography.headlineSmall)
-        val average = state.summary.averageRating
-        Text(
-            if (average == null) "No ratings yet · Be the first to rate this book"
-            else "${"%.1f".format(Locale.getDefault(), average)} out of 5 · ${state.summary.reviewCount} ${if (state.summary.reviewCount == 1) "review" else "reviews"}",
-            style = MaterialTheme.typography.bodyLarge,
-        )
+    Column(verticalArrangement = Arrangement.spacedBy(18.dp), modifier = Modifier.fillMaxWidth()) {
+        SectionHeader("Reader reviews", eyebrow = "From the Fable community", accent = accent)
 
-        Text(if (ownReview == null) "Your rating" else "Your rating and review", style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            (1..5).forEach { value ->
-                Text(
-                    text = if (value <= ratingDraft) "★" else "☆",
-                    color = if (value <= ratingDraft) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier
-                        .clickable { ratingDraft = value }
-                        .semantics { contentDescription = "$value star${if (value == 1) "" else "s"}" },
+        RatingSummary(state.summary.averageRating, state.summary.reviewCount, state.summary.reviews, accent)
+
+        FableCard(Modifier.fillMaxWidth(), color = tokens.raisedSurface) {
+            Column(Modifier.padding(18.dp).animateContentSize(FableMotion.gentleSpring()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Eyebrow(if (ownReview == null) "Your rating" else "Your rating and review", color = accent)
+                RatingInput(ratingDraft, { ratingDraft = it }, color = tokens.gilt)
+                FableTextField(
+                    value = reviewText,
+                    onValueChange = { reviewText = it.take(MAX_REVIEW_LENGTH) },
+                    label = "Write a review (optional)",
+                    placeholder = "What stayed with you?",
+                    singleLine = false,
+                    minLines = 3,
+                    maxLines = 10,
+                    supportingText = "${reviewText.length}/$MAX_REVIEW_LENGTH",
                 )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FableButton(
+                        text = if (ownReview == null) "Submit rating" else "Update review",
+                        onClick = {
+                            haptics.confirm()
+                            viewModel.save(book, ratingDraft, reviewText)
+                        },
+                        enabled = ratingDraft in 1..5,
+                        icon = FableIcons.Send,
+                        accent = accent,
+                    )
+                    if (ownReview != null) {
+                        FableTextButton(
+                            "Delete",
+                            onClick = {
+                                haptics.reject()
+                                viewModel.delete(book.id)
+                            },
+                            color = MaterialTheme.colorScheme.error,
+                            icon = FableIcons.Trash,
+                        )
+                    }
+                }
             }
         }
-        OutlinedTextField(
-            value = reviewText,
-            onValueChange = { reviewText = it.take(MAX_REVIEW_LENGTH) },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Write a review (optional)") },
-            supportingText = { Text("${reviewText.length}/$MAX_REVIEW_LENGTH") },
-            minLines = 3,
+
+        StatusBanner(state.message, tone = BannerTone.Success, onDismiss = viewModel::clearMessage)
+        StatusBanner(state.error, tone = BannerTone.Error)
+        StatusBanner(
+            if (state.pendingChanges > 0) "${state.pendingChanges} review change(s) waiting to sync" else null,
+            tone = BannerTone.Warning,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(
-                enabled = ratingDraft in 1..5,
-                onClick = { viewModel.save(book, ratingDraft, reviewText) },
-            ) { Text(if (ownReview == null) "Submit rating" else "Update review") }
-            if (ownReview != null) {
-                OutlinedButton(onClick = { viewModel.delete(book.id) }) { Text("Delete") }
+
+        when {
+            state.isLoading && state.reviews.isEmpty() -> FableLoading("Gathering reviews…")
+            state.summary.reviews.isEmpty() -> Caption("No reviews yet. Your rating will be the first one.")
+            else -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                state.summary.reviews.forEach { review -> ReviewCard(review, isOwn = review.reviewerId == userId, accent = accent) }
             }
         }
-        state.message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
-        state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        if (state.pendingChanges > 0) {
-            Text("${state.pendingChanges} review change(s) waiting to sync", color = MaterialTheme.colorScheme.tertiary)
+    }
+}
+
+/** Big average, stars, and a real distribution of ratings across the visible reviews. */
+@Composable
+private fun RatingSummary(average: Double?, count: Int, reviews: List<BookReview>, accent: Color) {
+    val tokens = FableThemeTokens.current
+    if (average == null) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            RatingStars(0.0, starSize = 18.dp)
+            Text("No ratings yet · Be the first to rate this book", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        if (state.isLoading && state.reviews.isEmpty()) CircularProgressIndicator()
-        else if (state.summary.reviews.isEmpty()) {
-            Text("No reviews yet. Your rating will be the first one.", style = MaterialTheme.typography.bodyMedium)
-        } else {
-            state.summary.reviews.forEach { review -> ReviewCard(review, isOwn = review.reviewerId == userId) }
+        return
+    }
+    val distribution = remember(reviews) { (1..5).associateWith { star -> reviews.count { it.rating == star } } }
+    Row(horizontalArrangement = Arrangement.spacedBy(22.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                "%.1f".format(Locale.getDefault(), average),
+                style = MaterialTheme.typography.displayMedium.copy(fontFamily = tokens.bookTitleFont, fontStyle = FontStyle.Normal),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            RatingStars(average, starSize = 14.dp)
+            Caption("$count ${if (count == 1) "review" else "reviews"}")
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            (5 downTo 1).forEach { star ->
+                val n = distribution[star] ?: 0
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("$star", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(10.dp))
+                    ProgressBar(
+                        if (count == 0) 0f else n.toFloat() / count,
+                        color = tokens.gilt,
+                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text("$n", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(18.dp))
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ReviewCard(review: BookReview, isOwn: Boolean) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(if (isOwn) "${review.reviewerUsername} · You" else review.reviewerUsername, style = MaterialTheme.typography.titleSmall)
-                Text("★".repeat(review.rating), color = MaterialTheme.colorScheme.primary)
+private fun ReviewCard(review: BookReview, isOwn: Boolean, accent: Color) {
+    val tokens = FableThemeTokens.current
+    var expanded by remember(review.updatedAt) { mutableStateOf(false) }
+    val text = review.reviewText?.takeIf(String::isNotBlank)
+    FableCard(Modifier.fillMaxWidth(), elevation = 0.dp) {
+        Column(Modifier.padding(16.dp).animateContentSize(FableMotion.gentleSpring()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                ReaderAvatar(null, review.reviewerUsername, size = 38.dp, accent = accent, ring = false)
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("@${review.reviewerUsername}", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+                        if (isOwn) {
+                            Box(Modifier.clip(CircleShape).background(accent.copy(alpha = 0.14f)).padding(horizontal = 7.dp, vertical = 1.dp)) {
+                                Text("You", style = MaterialTheme.typography.labelMedium, color = accent)
+                            }
+                        }
+                    }
+                    Text(
+                        if (review.updatedAt > review.createdAt) {
+                            "Reviewed ${DATE_FORMAT.format(Date(review.createdAt))} · Updated ${DATE_FORMAT.format(Date(review.updatedAt))}"
+                        } else {
+                            "Reviewed ${DATE_FORMAT.format(Date(review.createdAt))}"
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                RatingStars(review.rating.toDouble(), starSize = 13.dp)
             }
-            review.reviewText?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-            Text(
-                if (review.updatedAt > review.createdAt) {
-                    "Reviewed ${DATE_FORMAT.format(Date(review.createdAt))} · Updated ${DATE_FORMAT.format(Date(review.updatedAt))}"
-                } else {
-                    "Reviewed ${DATE_FORMAT.format(Date(review.createdAt))}"
-                },
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            text?.let {
+                Text(
+                    "“$it”",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontFamily = tokens.bookTitleFont, fontStyle = FontStyle.Italic),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = if (expanded) Int.MAX_VALUE else 6,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.clickable(role = Role.Button) { expanded = !expanded },
+                )
+            }
         }
     }
 }

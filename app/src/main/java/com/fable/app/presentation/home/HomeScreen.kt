@@ -3,40 +3,56 @@ package com.fable.app.presentation.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.fable.app.domain.model.UserProfile
 import com.fable.app.presentation.auth.AuthUiState
+import com.fable.app.presentation.designsystem.BannerTone
+import com.fable.app.presentation.designsystem.Caption
+import com.fable.app.presentation.designsystem.FableButton
+import com.fable.app.presentation.designsystem.FableButtonStyle
+import com.fable.app.presentation.designsystem.FableIcons
+import com.fable.app.presentation.designsystem.GenreBadge
+import com.fable.app.presentation.designsystem.PageTitle
+import com.fable.app.presentation.designsystem.PullQuote
+import com.fable.app.presentation.designsystem.ReaderAvatar
+import com.fable.app.presentation.designsystem.StatusBanner
+import com.fable.app.presentation.theme.GenreThemes
 
+/** Simple signed-in summary screen (kept for compatibility with earlier phases). */
 @Composable
 fun AuthenticatedHomeScreen(
     profile: UserProfile,
     state: AuthUiState,
     onLogout: () -> Unit,
 ) {
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text("Fable", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            Text("Welcome, ${profile.displayName}", style = MaterialTheme.typography.headlineMedium)
-            Text("@${profile.username}", style = MaterialTheme.typography.titleMedium)
-            profile.bio?.takeIf { it.isNotBlank() }?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
-            if (profile.favouriteGenres.isNotEmpty()) {
-                Text("Favourite genres: ${profile.favouriteGenres.joinToString()}")
-            }
-            Text("Signed in as ${profile.email}", style = MaterialTheme.typography.bodyMedium)
-            state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(onClick = onLogout, enabled = !state.isLoading) {
-                Text(if (state.isLoading) "Signing out…" else "Sign out")
+    Column(
+        modifier = Modifier.fillMaxSize().statusBarsPadding().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        ReaderAvatar(profile.profileImageUrl, profile.displayName, size = 88.dp)
+        PageTitle("Welcome, ${profile.displayName}", eyebrow = "Fable", subtitle = "@${profile.username}")
+        profile.bio?.takeIf { it.isNotBlank() }?.let { PullQuote(it) }
+        if (profile.favouriteGenres.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                profile.favouriteGenres.forEach { GenreBadge(GenreThemes.fromName(it), label = it) }
             }
         }
+        Caption("Signed in as ${profile.email}")
+        StatusBanner(state.error, tone = BannerTone.Error)
+        FableButton(
+            text = if (state.isLoading) "Signing out…" else "Sign out",
+            onClick = onLogout,
+            enabled = !state.isLoading,
+            style = FableButtonStyle.Secondary,
+            icon = FableIcons.SignOut,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
