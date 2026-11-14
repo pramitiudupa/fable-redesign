@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.fable.app.domain.model.FableThemeName
+import com.fable.app.presentation.designsystem.Caption
 import com.fable.app.presentation.designsystem.FableButton
 import com.fable.app.presentation.designsystem.FableButtonStyle
 import com.fable.app.presentation.designsystem.FableChip
@@ -65,5 +66,11 @@ fun LoginScreen(
                 icon = FableIcons.Palette,
             )
         }
+        // Shows which build is installed, so an outdated APK is easy to spot.
+        Caption(
+            "Fable ${com.fable.app.BuildConfig.VERSION_NAME}" + if (firebaseConfigured) " · connected" else " · offline build",
+            modifier = Modifier.fillMaxWidth(),
+            align = androidx.compose.ui.text.style.TextAlign.Center,
+        )
     }
 }
