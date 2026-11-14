@@ -110,6 +110,8 @@ fun FableApp(dependencies: FableDependencies) {
     }
 
     FableTheme(themeState.selectedTheme) {
+        // Default text colour follows the theme, so unstyled text stays readable on dark themes.
+        CompositionLocalProvider(androidx.compose.material3.LocalContentColor provides androidx.compose.material3.MaterialTheme.colorScheme.onBackground) {
         Box(Modifier.fillMaxSize().fableAtmosphere()) {
             AnimatedContent(
                 targetState = stage to session,
@@ -173,6 +175,7 @@ fun FableApp(dependencies: FableDependencies) {
             // Soft scrim so scrolling content never collides with the status-bar icons. The
             // signed-in app draws its own, because some of its screens are full-bleed heroes.
             if (stage != Stage.Splash && stage != Stage.Ready) StatusBarScrim(Modifier.align(Alignment.TopCenter))
+        }
         }
     }
 }
