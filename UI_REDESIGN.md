@@ -48,3 +48,12 @@ data show designed empty states. Nothing is invented to fill them.
 ## Tests
 `GenreThemeTest` covers genre resolution, multi-genre handling, unknown-subject fallback,
 route ↔ genre mapping, and WCAG contrast for every genre in both light and dark modes.
+
+## Firebase backend
+The app is wired to the Firebase project **fable-reads-261114865**: email/password sign-in, a
+Firestore database (asia-south1) and the repo's `firestore.rules`, all defined in `firebase.json`
+and deployed with `firebase deploy --only firestore,auth`.
+
+`app/google-services.json` is deliberately **not** in git (see `.gitignore`). To build a version
+that can sign in, get that file from the project owner, or download it from the Firebase console
+(Project settings → Your apps → Fable Android), and place it in `app/`.
