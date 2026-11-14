@@ -81,6 +81,7 @@ data class FableThemeTokens(
     val hairline: Color = Color(0x1F000000),
     val raisedSurface: Color = Color.White,
     val sunkenSurface: Color = Color(0xFFF0EDE6),
+    val brushEnd: Color = Color.Unspecified,
     val displayFont: FontFamily = FontFamily.Serif,
     val bookTitleFont: FontFamily = FontFamily.Serif,
     val displayItalic: Boolean = false,
@@ -181,191 +182,163 @@ private fun FablePalette.animated(): FablePalette {
     )
 }
 
+/*
+ * The five global themes use exactly the palettes, heading fonts, letter spacing, corner radii,
+ * card borders and page gradients from the original Fable repository. Only extra design-system
+ * tokens (hairlines, raised surfaces, gilt accents) are derived from those palettes.
+ */
 fun fableThemeDefinition(name: FableThemeName): FableThemeDefinition = when (name) {
     FableThemeName.GOTHIC -> definition(
         name,
         FablePalette(
-            primary = Color(0xFFE9DDC3), onPrimary = Color(0xFF1A1714),
-            secondary = Color(0xFFA99F8C), onSecondary = Color(0xFF1C1915),
-            tertiary = Color(0xFFCBA65D), onTertiary = Color(0xFF221A0B),
-            background = Color(0xFF0E0D0C), onBackground = Color(0xFFEDE6D8),
-            surface = Color(0xFF181614), onSurface = Color(0xFFEDE6D8),
-            surfaceVariant = Color(0xFF26221E), onSurfaceVariant = Color(0xFFB9AF9F),
-            outline = Color(0xFF615A4E), error = Color(0xFFFFB4AB), dark = true,
-            glow = Color(0xFF3B2E1C), glowSecondary = Color(0xFF1C2130), gilt = Color(0xFFCBA65D),
+            primary = Color(0xFFE4D8BD), onPrimary = Color(0xFF201D19),
+            secondary = Color(0xFFB9AD98), onSecondary = Color(0xFF24211C),
+            tertiary = Color(0xFFC2A56B), onTertiary = Color(0xFF241E12),
+            background = Color(0xFF11100F), onBackground = Color(0xFFECE6DA),
+            surface = Color(0xFF1D1B18), onSurface = Color(0xFFECE6DA),
+            surfaceVariant = Color(0xFF302D28), onSurfaceVariant = Color(0xFFCCC4B7),
+            outline = Color(0xFF71695B), error = Color(0xFFFFB4AB), dark = true,
         ),
-        type = ThemeType(
-            display = FontFamily.Serif, displayWeight = FontWeight.Normal,
-            displayTracking = (-0.01).em, labelTracking = 0.18.em,
-        ),
-        corner = 6.dp,
-        ornament = "✠",
+        headingFont = FontFamily.Serif,
+        headingSpacing = 0.35.sp,
+        corner = 4.dp,
+        ornament = "♜",
+        brushEnd = Color(0xFF191714),
     )
     FableThemeName.GOTHIC_ROMANCE -> definition(
         name,
         FablePalette(
-            primary = Color(0xFFE7A9BA), onPrimary = Color(0xFF2E0F1A),
-            secondary = Color(0xFF93405B), onSecondary = Color(0xFFFFEAF0),
-            tertiary = Color(0xFFEAD4B2), onTertiary = Color(0xFF2B1B14),
-            background = Color(0xFF130A0F), onBackground = Color(0xFFF5E7EB),
-            surface = Color(0xFF1E1117), onSurface = Color(0xFFF5E7EB),
-            surfaceVariant = Color(0xFF2E1B24), onSurfaceVariant = Color(0xFFD5BCC4),
-            outline = Color(0xFF735060), error = Color(0xFFFFB4AB), dark = true,
-            glow = Color(0xFF52162C), glowSecondary = Color(0xFF2B1734), gilt = Color(0xFFE2C38E),
+            primary = Color(0xFFDDA1B1), onPrimary = Color(0xFF31151F),
+            secondary = Color(0xFF6F3647), onSecondary = Color(0xFFFFE9EF),
+            tertiary = Color(0xFFE4D4C9), onTertiary = Color(0xFF2B1B1F),
+            background = Color(0xFF170F13), onBackground = Color(0xFFF2E5E8),
+            surface = Color(0xFF24171D), onSurface = Color(0xFFF2E5E8),
+            surfaceVariant = Color(0xFF38252E), onSurfaceVariant = Color(0xFFD9C1C8),
+            outline = Color(0xFF80616C), error = Color(0xFFFFB4AB), dark = true,
         ),
-        type = ThemeType(
-            display = FontFamily.Serif, displayWeight = FontWeight.Normal, displayItalic = true,
-            displayTracking = 0.em, labelTracking = 0.14.em,
-        ),
-        corner = 18.dp,
+        headingFont = FontFamily.Serif,
+        headingSpacing = 0.25.sp,
+        corner = 14.dp,
         ornament = "❦",
+        brushEnd = Color(0xFF21151A),
     )
     FableThemeName.DARK_ACADEMIA -> definition(
         name,
         FablePalette(
-            primary = Color(0xFF34503B), onPrimary = Color(0xFFF7F0DF),
-            secondary = Color(0xFF6B4D2D), onSecondary = Color(0xFFFFF4E2),
-            tertiary = Color(0xFF8C6D30), onTertiary = Color(0xFFFFF6E0),
-            background = Color(0xFFEDE3CD), onBackground = Color(0xFF2B231A),
-            surface = Color(0xFFF7F0DF), onSurface = Color(0xFF2B231A),
-            surfaceVariant = Color(0xFFE2D4B8), onSurfaceVariant = Color(0xFF52463A),
-            outline = Color(0xFF8C7C62), error = Color(0xFF9C3932), dark = false,
-            glow = Color(0xFFDCC495), glowSecondary = Color(0xFFC9D4BC), gilt = Color(0xFF9A7A35),
+            primary = Color(0xFF3C5843), onPrimary = Color(0xFFF7F0DF),
+            secondary = Color(0xFF775C37), onSecondary = Color(0xFFFFF3DE),
+            tertiary = Color(0xFF846D3F), onTertiary = Color(0xFFFFF4D9),
+            background = Color(0xFFE9DFC8), onBackground = Color(0xFF30281F),
+            surface = Color(0xFFF5EDD9), onSurface = Color(0xFF30281F),
+            surfaceVariant = Color(0xFFE2D5BD), onSurfaceVariant = Color(0xFF514637),
+            outline = Color(0xFF81745E), error = Color(0xFF9C3932), dark = false,
         ),
-        type = ThemeType(
-            display = FontFamily.Serif, displayWeight = FontWeight.Medium,
-            displayTracking = (-0.005).em, labelTracking = 0.16.em,
-        ),
+        headingFont = FontFamily.Serif,
+        headingSpacing = 0.15.sp,
         corner = 8.dp,
         ornament = "❧",
+        brushEnd = Color(0xFFF0E7D4),
     )
     FableThemeName.DREAMSCAPE -> definition(
         name,
         FablePalette(
-            primary = Color(0xFF474E86), onPrimary = Color(0xFFFFFFFF),
-            secondary = Color(0xFF6E77AD), onSecondary = Color(0xFFFFFFFF),
-            tertiary = Color(0xFF8E62A0), onTertiary = Color(0xFFFFFFFF),
-            background = Color(0xFFEDEAF7), onBackground = Color(0xFF242845),
-            surface = Color(0xFFF8F6FE), onSurface = Color(0xFF242845),
-            surfaceVariant = Color(0xFFE0DDF0), onSurfaceVariant = Color(0xFF4C4F6E),
-            outline = Color(0xFF8A8DAE), error = Color(0xFF9C3E4E), dark = false,
-            glow = Color(0xFFDCD0F7), glowSecondary = Color(0xFFCDE2F6), gilt = Color(0xFF8C74BD),
+            primary = Color(0xFF4A527C), onPrimary = Color(0xFFFFFFFF),
+            secondary = Color(0xFF707AA5), onSecondary = Color(0xFFFFFFFF),
+            tertiary = Color(0xFF79638E), onTertiary = Color(0xFFFFFFFF),
+            background = Color(0xFFECEAF5), onBackground = Color(0xFF292D48),
+            surface = Color(0xFFF7F6FC), onSurface = Color(0xFF292D48),
+            surfaceVariant = Color(0xFFDFDEED), onSurfaceVariant = Color(0xFF4A4D67),
+            outline = Color(0xFF777B99), error = Color(0xFF9C3E4E), dark = false,
         ),
-        type = ThemeType(
-            display = FontFamily.SansSerif, displayWeight = FontWeight.Light,
-            displayTracking = (-0.02).em, labelTracking = 0.12.em,
-        ),
-        corner = 24.dp,
+        headingFont = FontFamily.SansSerif,
+        headingSpacing = 0.1.sp,
+        corner = 20.dp,
         ornament = "☾",
+        brushEnd = Color(0xFFF3F1FA),
     )
     FableThemeName.MINIMALIST -> definition(
         name,
         FablePalette(
-            primary = Color(0xFF2E4A3A), onPrimary = Color(0xFFFFFFFF),
-            secondary = Color(0xFF5B625B), onSecondary = Color(0xFFFFFFFF),
-            tertiary = Color(0xFF8E6A3E), onTertiary = Color(0xFFFFFFFF),
-            background = Color(0xFFF6F4EE), onBackground = Color(0xFF1D201E),
-            surface = Color(0xFFFDFCF8), onSurface = Color(0xFF1D201E),
-            surfaceVariant = Color(0xFFECE9E0), onSurfaceVariant = Color(0xFF575C56),
-            outline = Color(0xFF8E8C82), error = Color(0xFFB3261E), dark = false,
-            glow = Color(0xFFEDE6D6), glowSecondary = Color(0xFFE2EAE3), gilt = Color(0xFF8E6A3E),
+            primary = Color(0xFF405A48), onPrimary = Color(0xFFFFFFFF),
+            secondary = Color(0xFF626B61), onSecondary = Color(0xFFFFFFFF),
+            tertiary = Color(0xFF7A6848), onTertiary = Color(0xFFFFFFFF),
+            background = Color(0xFFF4F1E8), onBackground = Color(0xFF292D29),
+            surface = Color(0xFFFBF9F2), onSurface = Color(0xFF292D29),
+            surfaceVariant = Color(0xFFE7E3D8), onSurfaceVariant = Color(0xFF4F544D),
+            outline = Color(0xFF77796F), error = Color(0xFFB3261E), dark = false,
         ),
-        type = ThemeType(
-            display = FontFamily.SansSerif, displayWeight = FontWeight.Medium,
-            displayTracking = (-0.025).em, labelTracking = 0.14.em,
-        ),
-        corner = 12.dp,
+        headingFont = FontFamily.SansSerif,
+        headingSpacing = 0.sp,
+        corner = 10.dp,
         ornament = "—",
+        brushEnd = Color(0xFFF8F6F0),
     )
 }
 
-private data class ThemeType(
-    val display: FontFamily,
-    val displayWeight: FontWeight,
-    val displayItalic: Boolean = false,
-    val displayTracking: TextUnit,
-    val labelTracking: TextUnit,
-)
-
-private fun colorSchemeFor(palette: FablePalette): ColorScheme {
-    val container = lerp(palette.surface, palette.primary, if (palette.dark) 0.22f else 0.12f)
-    val secondaryContainer = lerp(palette.surface, palette.secondary, if (palette.dark) 0.26f else 0.14f)
-    val tertiaryContainer = lerp(palette.surface, palette.tertiary, if (palette.dark) 0.24f else 0.14f)
-    val errorContainer = lerp(palette.surface, palette.error, if (palette.dark) 0.22f else 0.12f)
-    val low = lerp(palette.background, palette.surface, 0.5f)
-    val high = lerp(palette.surface, palette.surfaceVariant, 0.5f)
-    return if (palette.dark) {
-        darkColorScheme(
-            primary = palette.primary, onPrimary = palette.onPrimary,
-            primaryContainer = container, onPrimaryContainer = palette.onSurface,
-            secondary = palette.secondary, onSecondary = palette.onSecondary,
-            secondaryContainer = secondaryContainer, onSecondaryContainer = palette.onSurface,
-            tertiary = palette.tertiary, onTertiary = palette.onTertiary,
-            tertiaryContainer = tertiaryContainer, onTertiaryContainer = palette.onSurface,
-            background = palette.background, onBackground = palette.onBackground,
-            surface = palette.surface, onSurface = palette.onSurface,
-            surfaceVariant = palette.surfaceVariant, onSurfaceVariant = palette.onSurfaceVariant,
-            surfaceContainerLowest = palette.background, surfaceContainerLow = low,
-            surfaceContainer = palette.surface, surfaceContainerHigh = high,
-            surfaceContainerHighest = palette.surfaceVariant,
-            outline = palette.outline, outlineVariant = palette.outline.copy(alpha = 0.4f),
-            error = palette.error, errorContainer = errorContainer, onErrorContainer = palette.onSurface,
-        )
-    } else {
-        lightColorScheme(
-            primary = palette.primary, onPrimary = palette.onPrimary,
-            primaryContainer = container, onPrimaryContainer = palette.onSurface,
-            secondary = palette.secondary, onSecondary = palette.onSecondary,
-            secondaryContainer = secondaryContainer, onSecondaryContainer = palette.onSurface,
-            tertiary = palette.tertiary, onTertiary = palette.onTertiary,
-            tertiaryContainer = tertiaryContainer, onTertiaryContainer = palette.onSurface,
-            background = palette.background, onBackground = palette.onBackground,
-            surface = palette.surface, onSurface = palette.onSurface,
-            surfaceVariant = palette.surfaceVariant, onSurfaceVariant = palette.onSurfaceVariant,
-            surfaceContainerLowest = palette.surface, surfaceContainerLow = low,
-            surfaceContainer = palette.surface, surfaceContainerHigh = high,
-            surfaceContainerHighest = palette.surfaceVariant,
-            outline = palette.outline, outlineVariant = palette.outline.copy(alpha = 0.35f),
-            error = palette.error, errorContainer = errorContainer, onErrorContainer = palette.onSurface,
-        )
-    }
+private fun colorSchemeFor(palette: FablePalette): ColorScheme = if (palette.dark) {
+    darkColorScheme(
+        primary = palette.primary, onPrimary = palette.onPrimary,
+        secondary = palette.secondary, onSecondary = palette.onSecondary,
+        tertiary = palette.tertiary, onTertiary = palette.onTertiary,
+        background = palette.background, onBackground = palette.onBackground,
+        surface = palette.surface, onSurface = palette.onSurface,
+        surfaceVariant = palette.surfaceVariant, onSurfaceVariant = palette.onSurfaceVariant,
+        outline = palette.outline, error = palette.error,
+    )
+} else {
+    lightColorScheme(
+        primary = palette.primary, onPrimary = palette.onPrimary,
+        secondary = palette.secondary, onSecondary = palette.onSecondary,
+        tertiary = palette.tertiary, onTertiary = palette.onTertiary,
+        background = palette.background, onBackground = palette.onBackground,
+        surface = palette.surface, onSurface = palette.onSurface,
+        surfaceVariant = palette.surfaceVariant, onSurfaceVariant = palette.onSurfaceVariant,
+        outline = palette.outline, error = palette.error,
+    )
 }
 
+/** Derived tokens. The page gradient and card border are exactly the original theme values. */
 private fun FableThemeTokens.withPalette(palette: FablePalette): FableThemeTokens = copy(
-    pageBrush = Brush.verticalGradient(listOf(palette.background, lerp(palette.background, palette.surface, 0.45f))),
-    cardBorder = palette.outline.copy(alpha = if (palette.dark) 0.42f else 0.30f),
+    pageBrush = Brush.verticalGradient(listOf(palette.background, if (brushEnd == Color.Unspecified) palette.background else brushEnd)),
+    cardBorder = palette.outline.copy(alpha = 0.48f),
     dark = palette.dark,
-    glow = palette.glow,
-    glowSecondary = palette.glowSecondary,
-    gilt = palette.gilt,
+    glow = Color.Transparent,
+    glowSecondary = Color.Transparent,
+    gilt = palette.tertiary,
     hairline = palette.onSurface.copy(alpha = if (palette.dark) 0.10f else 0.08f),
-    raisedSurface = if (palette.dark) lerp(palette.surface, palette.surfaceVariant, 0.55f) else palette.surface,
-    sunkenSurface = if (palette.dark) lerp(palette.background, palette.surface, 0.5f)
-    else lerp(palette.background, palette.surfaceVariant, 0.45f),
+    raisedSurface = palette.surface,
+    sunkenSurface = palette.surfaceVariant.copy(alpha = 0.6f),
 )
 
 private fun definition(
     name: FableThemeName,
     palette: FablePalette,
-    type: ThemeType,
+    headingFont: FontFamily,
+    headingSpacing: TextUnit,
     corner: Dp,
     ornament: String,
+    brushEnd: Color,
 ): FableThemeDefinition {
-    val shapes = Shapes(
-        extraSmall = RoundedCornerShape(corner * 0.4f),
-        small = RoundedCornerShape(corner * 0.65f),
-        medium = RoundedCornerShape(corner),
-        large = RoundedCornerShape(corner * 1.35f),
-        extraLarge = RoundedCornerShape(corner * 1.8f),
+    val defaultTypography = Typography()
+    val typography = defaultTypography.copy(
+        displayLarge = defaultTypography.displayLarge.copy(fontFamily = headingFont, letterSpacing = headingSpacing),
+        displayMedium = defaultTypography.displayMedium.copy(fontFamily = headingFont, letterSpacing = headingSpacing),
+        displaySmall = defaultTypography.displaySmall.copy(fontFamily = headingFont, letterSpacing = headingSpacing),
+        headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = headingFont, letterSpacing = headingSpacing),
+        headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = headingFont, letterSpacing = headingSpacing),
+        headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = headingFont, letterSpacing = headingSpacing),
+        titleLarge = defaultTypography.titleLarge.copy(fontFamily = headingFont, fontWeight = FontWeight.SemiBold),
+        titleMedium = defaultTypography.titleMedium.copy(fontFamily = headingFont, fontWeight = FontWeight.Medium),
     )
+    val shape = RoundedCornerShape(corner)
     val tokens = FableThemeTokens(
-        pageBrush = Brush.verticalGradient(listOf(palette.background, palette.surface)),
-        cardBorder = palette.outline,
+        pageBrush = Brush.verticalGradient(listOf(palette.background, brushEnd)),
+        cardBorder = palette.outline.copy(alpha = 0.48f),
         ornament = ornament,
         cardElevation = if (name == FableThemeName.MINIMALIST) 0.dp else 2.dp,
-        displayFont = type.display,
+        brushEnd = brushEnd,
+        displayFont = headingFont,
         bookTitleFont = FontFamily.Serif,
-        displayItalic = type.displayItalic,
         cornerRadius = corner,
         themeName = name,
     ).withPalette(palette)
@@ -373,50 +346,8 @@ private fun definition(
         name = name,
         palette = palette,
         colorScheme = colorSchemeFor(palette),
-        typography = fableTypography(type),
-        shapes = shapes,
+        typography = typography,
+        shapes = Shapes(small = shape, medium = shape, large = shape),
         tokens = tokens,
-    )
-}
-
-private fun fableTypography(type: ThemeType): Typography {
-    val sans = FontFamily.SansSerif
-    val displayStyle = if (type.displayItalic) FontStyle.Italic else FontStyle.Normal
-    fun display(size: Int, line: Int) = TextStyle(
-        fontFamily = type.display,
-        fontWeight = type.displayWeight,
-        fontStyle = displayStyle,
-        fontSize = size.sp,
-        lineHeight = line.sp,
-        letterSpacing = type.displayTracking,
-    )
-    fun body(size: Int, line: Int, weight: FontWeight = FontWeight.Normal, tracking: TextUnit = 0.01.em) = TextStyle(
-        fontFamily = sans,
-        fontWeight = weight,
-        fontSize = size.sp,
-        lineHeight = line.sp,
-        letterSpacing = tracking,
-    )
-    return Typography(
-        displayLarge = display(54, 58),
-        displayMedium = display(42, 48),
-        displaySmall = display(34, 40),
-        headlineLarge = display(30, 36),
-        headlineMedium = display(26, 32),
-        headlineSmall = display(22, 28),
-        titleLarge = TextStyle(
-            fontFamily = type.display,
-            fontWeight = if (type.display == FontFamily.Serif) FontWeight.Medium else FontWeight.SemiBold,
-            fontSize = 20.sp,
-            lineHeight = 26.sp,
-        ),
-        titleMedium = body(16, 22, FontWeight.SemiBold, 0.005.em),
-        titleSmall = body(14, 20, FontWeight.SemiBold, 0.005.em),
-        bodyLarge = body(16, 25),
-        bodyMedium = body(14, 21),
-        bodySmall = body(12, 17, tracking = 0.015.em),
-        labelLarge = body(14, 18, FontWeight.SemiBold, 0.02.em),
-        labelMedium = body(12, 16, FontWeight.Medium, 0.04.em),
-        labelSmall = body(10, 14, FontWeight.SemiBold, type.labelTracking),
     )
 }

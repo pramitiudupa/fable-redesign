@@ -53,6 +53,8 @@ import com.fable.app.presentation.designsystem.FableTextField
 import com.fable.app.presentation.designsystem.StatusBanner
 import com.fable.app.presentation.designsystem.entrance
 import com.fable.app.presentation.designsystem.fableAtmosphere
+import com.fable.app.presentation.designsystem.pastelBackdrop
+import androidx.compose.ui.graphics.Color
 import com.fable.app.presentation.theme.FableMotion
 import com.fable.app.presentation.theme.FableThemeTokens
 import com.fable.app.presentation.theme.Genre
@@ -76,7 +78,7 @@ internal fun AuthPage(
     Column(
         Modifier
             .fillMaxSize()
-            .fableAtmosphere()
+            .then(if (tokens.dark) Modifier.fableAtmosphere() else Modifier.pastelBackdrop())
             .verticalScroll(rememberScrollState())
             .imePadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -108,7 +110,7 @@ internal fun AuthPage(
                 .fillMaxWidth()
                 .entrance(3),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-            color = tokens.raisedSurface,
+            color = if (tokens.dark) tokens.raisedSurface else Color(0xFFFDFCFF),
             shadowElevation = 24.dp,
         ) {
             Column(

@@ -27,8 +27,11 @@ fun Modifier.fableAtmosphere(): Modifier {
     val glow = tokens.glow
     val glowSecondary = tokens.glowSecondary
     val dark = tokens.dark
+    // The theme's own page gradient (exactly as in the original themes); glows are transparent
+    // for the stock themes and only show where a screen supplies them.
+    val pageBrush = tokens.pageBrush
     return this.drawWithCache {
-        val base = Brush.verticalGradient(listOf(background, androidx.compose.ui.graphics.lerp(background, surface, 0.4f), background))
+        val base = pageBrush
         val warm = Brush.radialGradient(
             colors = listOf(glow.copy(alpha = if (dark) 0.55f else 0.7f), Color.Transparent),
             center = Offset(size.width * 0.05f, size.height * 0.02f),
@@ -68,6 +71,44 @@ fun DrawScope.drawGenreWash(colors: GenreColors, intensity: Float = 1f) {
             radius = max(size.width, 1f) * 0.6f,
         ),
     )
+}
+
+/** Soft multi-colour pastel gradient for the opening screens (splash, sign-in, sign-up). */
+val PastelColors = listOf(
+    Color(0xFFFDE2E4), // blush pink
+    Color(0xFFE2ECFF), // sky blue
+    Color(0xFFE8E0FF), // lavender
+    Color(0xFFDDF4E7), // mint
+    Color(0xFFFFF1D6), // peach cream
+)
+
+fun Modifier.pastelBackdrop(): Modifier = this.drawWithCache {
+    val diagonal = Brush.linearGradient(
+        colors = PastelColors,
+        start = Offset.Zero,
+        end = Offset(size.width, size.height),
+    )
+    val bloomPink = Brush.radialGradient(
+        listOf(Color(0xFFFFC8DD).copy(alpha = 0.55f), Color.Transparent),
+        center = Offset(size.width * 0.9f, size.height * 0.08f),
+        radius = max(size.width, 1f) * 0.8f,
+    )
+    val bloomBlue = Brush.radialGradient(
+        listOf(Color(0xFFBDE0FE).copy(alpha = 0.55f), Color.Transparent),
+        center = Offset(size.width * 0.05f, size.height * 0.45f),
+        radius = max(size.width, 1f) * 0.85f,
+    )
+    val bloomMint = Brush.radialGradient(
+        listOf(Color(0xFFCDEAC0).copy(alpha = 0.5f), Color.Transparent),
+        center = Offset(size.width * 0.8f, size.height * 0.9f),
+        radius = max(size.width, 1f) * 0.8f,
+    )
+    onDrawBehind {
+        drawRect(diagonal)
+        drawRect(bloomPink)
+        drawRect(bloomBlue)
+        drawRect(bloomMint)
+    }
 }
 
 @Composable

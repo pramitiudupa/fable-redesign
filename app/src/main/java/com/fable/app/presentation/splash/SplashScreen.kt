@@ -44,19 +44,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fable.app.presentation.theme.FableMotion
+import com.fable.app.presentation.designsystem.pastelBackdrop
 import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.random.Random
 
-private val Ink = Color(0xFF0D0B0A)
-private val InkLift = Color(0xFF1C1712)
-private val Gold = Color(0xFFD7B46A)
-private val Ivory = Color(0xFFF1E8D6)
-private val Ember = Color(0xFF5A2E1C)
+// Pastel opening palette: deep plum ink and warm rose-gold on a soft multi-colour gradient.
+private val Glow = Color(0xFFFFFFFF)
+private val GlowEdge = Color(0xFFFFF4FA)
+private val Gold = Color(0xFFB07A4F)
+private val Ivory = Color(0xFF2E2A45)
 
 /**
- * The opening moment: an open book is drawn in gold line, the wordmark rises out of the dark,
- * motes of dust drift through candle light. Shown while the session is being restored.
+ * The opening moment: on a soft pastel gradient an open book is drawn in rose-gold line, the
+ * wordmark rises into place and motes drift through the light. Shown while the session restores.
  */
 @Composable
 fun FableSplash(modifier: Modifier = Modifier, statusText: String = "Opening your library…") {
@@ -80,11 +81,11 @@ fun FableSplash(modifier: Modifier = Modifier, statusText: String = "Opening you
     Box(
         modifier
             .fillMaxSize()
-            .background(Ink)
+            .pastelBackdrop()
             .drawBehind {
                 drawRect(
                     Brush.radialGradient(
-                        listOf(Ember.copy(alpha = 0.55f * flicker), InkLift.copy(alpha = 0.6f), Color.Transparent),
+                        listOf(Glow.copy(alpha = 0.7f * flicker), GlowEdge.copy(alpha = 0.35f), Color.Transparent),
                         center = Offset(size.width / 2, size.height * 0.42f),
                         radius = max(size.width, size.height) * 0.65f,
                     ),
@@ -92,7 +93,7 @@ fun FableSplash(modifier: Modifier = Modifier, statusText: String = "Opening you
                 motes.forEach { (x, y, s) ->
                     val py = ((y - drift * s * 0.35f) % 1f + 1f) % 1f
                     drawCircle(
-                        Gold.copy(alpha = 0.18f * s * flicker),
+                        Gold.copy(alpha = 0.22f * s * flicker),
                         radius = 1.4.dp.toPx() * s,
                         center = Offset(size.width * x, size.height * py),
                     )

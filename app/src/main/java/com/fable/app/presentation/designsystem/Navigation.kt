@@ -167,8 +167,8 @@ fun FloatingBackButton(onBack: () -> Unit, modifier: Modifier = Modifier) {
 
 /** Soft fade behind the status bar so scrolling content never collides with system icons. */
 @Composable
-fun StatusBarScrim(modifier: Modifier = Modifier) {
-    val background = MaterialTheme.colorScheme.background
+fun StatusBarScrim(modifier: Modifier = Modifier, color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.background) {
+    val background = color
     val height = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 14.dp
     Box(
         modifier

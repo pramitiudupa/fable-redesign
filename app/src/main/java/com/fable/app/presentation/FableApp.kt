@@ -174,7 +174,13 @@ fun FableApp(dependencies: FableDependencies) {
             }
             // Soft scrim so scrolling content never collides with the status-bar icons. The
             // signed-in app draws its own, because some of its screens are full-bleed heroes.
-            if (stage != Stage.Splash && stage != Stage.Ready) StatusBarScrim(Modifier.align(Alignment.TopCenter))
+            if (stage != Stage.Splash && stage != Stage.Ready) {
+                val pastel = !com.fable.app.presentation.theme.FableThemeTokens.current.dark && stage != Stage.Failed
+                StatusBarScrim(
+                    Modifier.align(Alignment.TopCenter),
+                    color = if (pastel) com.fable.app.presentation.designsystem.PastelColors.first() else androidx.compose.material3.MaterialTheme.colorScheme.background,
+                )
+            }
         }
         }
     }

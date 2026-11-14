@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="fable_ink">#FF0D0B0A</color>
+    <color name="fable_pastel">#FFF1E6F7</color>
 </resources>
