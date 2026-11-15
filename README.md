@@ -2,9 +2,18 @@
 
 Fable is an Android social reading app for discovering books, tracking a personal reading life, and connecting with other readers.
 
+## Install on your phone
+
+1. On your Android phone, open the [latest release](https://github.com/pramitiudupa/fable-redesign/releases/latest) and download **Fable-v1.0.1.apk**.
+2. Open the downloaded file. If Android asks, allow **Install unknown apps** for your browser or file manager.
+3. Tap **Install**, then open **Fable**. The bottom of the sign-in screen should read **"Fable 1.0.1 · connected"**.
+4. Tap **Create an account** and sign up with your email.
+
+Needs Android 7.0 or newer. If an older Fable is installed, uninstall it first.
+
 ## Current status
 
-Phases 1–9 are complete. Fable is a Kotlin and Jetpack Compose Android app for discovering books, maintaining a personal reading library, reviewing books, and connecting with readers. Phase 9 packages the final documentation and viva materials. The app builds without Firebase credentials, but this workspace has no Firebase configuration, so account and cloud features are not live-verified.
+Fable 1.0.1 is a Kotlin and Jetpack Compose Android app for discovering books, maintaining a personal reading library, reviewing books, and connecting with readers. It runs against a live Firebase project (email/password sign-in and Cloud Firestore) and has been tested end to end on a physical phone. To build it yourself you need that project's `app/google-services.json`, which is deliberately not in this repository; without it the app still builds and runs, showing a "Firebase setup required" notice. The UI redesign is described in [UI_REDESIGN.md](UI_REDESIGN.md), with screenshots in [docs/redesign-screens](docs/redesign-screens).
 
 ## Problem and project goals
 
