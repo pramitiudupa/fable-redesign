@@ -2,6 +2,16 @@
 
 Fable is an Android social reading app for discovering books, tracking a personal reading life, and connecting with other readers.
 
+## Submission
+
+| | |
+| --- | --- |
+| **Team** | Pramiti Ragavendra Udupa (PES1UG24CS331) · Shashank Arya (PES1UG24CS432) · Shreyas Gowda (PES1UG24CS704) |
+| **Project report** | [submission/Fable-Project-Report.pdf](submission/Fable-Project-Report.pdf): team details, project description and screenshots |
+| **Demo video** | [submission/Fable-Demo.mp4](submission/Fable-Demo.mp4): the app running on the Android emulator, showing every feature |
+| **Code walkthrough** | [docs/Fable-Code-Walkthrough.pdf](docs/Fable-Code-Walkthrough.pdf) |
+| **APK** | [Fable-v1.0.1.apk](https://github.com/pramitiudupa/fable-redesign/releases/latest) |
+
 ## Install on your phone
 
 1. On your Android phone, open the [latest release](https://github.com/pramitiudupa/fable-redesign/releases/latest) and download **Fable-v1.0.1.apk**.
