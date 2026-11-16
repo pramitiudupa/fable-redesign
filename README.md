@@ -13,7 +13,7 @@ Needs Android 7.0 or newer. If an older Fable is installed, uninstall it first.
 
 ## Current status
 
-Fable 1.0.1 is a Kotlin and Jetpack Compose Android app for discovering books, maintaining a personal reading library, reviewing books, and connecting with readers. It runs against a live Firebase project (email/password sign-in and Cloud Firestore) and has been tested end to end on a physical phone. To build it yourself you need that project's `app/google-services.json`, which is deliberately not in this repository; without it the app still builds and runs, showing a "Firebase setup required" notice. The UI redesign is described in [UI_REDESIGN.md](UI_REDESIGN.md), with screenshots in [docs/redesign-screens](docs/redesign-screens).
+Fable 1.0.1 is a Kotlin and Jetpack Compose Android app for discovering books, maintaining a personal reading library, reviewing books, and connecting with readers. It runs against a live Firebase project (email/password sign-in and Cloud Firestore) and has been tested end to end on a physical phone. To build it yourself you need that project's `app/google-services.json`, which is deliberately not in this repository; without it the app still builds and runs, showing a "Firebase setup required" notice. The UI redesign is described in [UI_REDESIGN.md](docs/UI_REDESIGN.md), with screenshots in [docs/redesign-screens](docs/redesign-screens).
 
 ## Problem and project goals
 
@@ -33,7 +33,7 @@ Jetpack Compose screens and Navigation
                          Open Library API
 ```
 
-Room stores cached books, search history, user-scoped library records, and review records. Firebase-backed repositories own account, profile, reading, review, and social synchronization. Open Library book search and details are accessed through Retrofit. Local code and automated tests are present for these flows, but Firebase cloud services require their own configuration and have not been live-verified here. See [ARCHITECTURE.md](ARCHITECTURE.md) for data flows and boundaries.
+Room stores cached books, search history, user-scoped library records, and review records. Firebase-backed repositories own account, profile, reading, review, and social synchronization. Open Library book search and details are accessed through Retrofit. Local code and automated tests are present for these flows, but Firebase cloud services require their own configuration and have not been live-verified here. See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for data flows and boundaries.
 
 ## Features implemented
 
@@ -129,12 +129,12 @@ For a quicker incremental build, run:
 
 The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
-58 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, Phase 6 social behavior, and Phase 7 theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Tests do not prove live Firebase behavior, deployed security rules, or successful runtime access to Open Library. See [FINAL_TEST_REPORT.md](FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
+58 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, Phase 6 social behavior, and Phase 7 theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Tests do not prove live Firebase behavior, deployed security rules, or successful runtime access to Open Library. See [FINAL_TEST_REPORT.md](docs/FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](docs/PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
 
 ## Demonstration and screenshots
 
-Use [FABLE_DEMO_GUIDE.md](FABLE_DEMO_GUIDE.md) for a five-to-seven-minute lecturer sequence. No genuine application screenshots were available for inclusion in this README or the presentation: the available headless emulator screenshot was black, and touch interaction was unreliable. The demo guide includes a manual screenshot checklist. Do not use generated mockups as screenshots of the running app.
+Use [FABLE_DEMO_GUIDE.md](docs/FABLE_DEMO_GUIDE.md) for a five-to-seven-minute lecturer sequence. No genuine application screenshots were available for inclusion in this README or the presentation: the available headless emulator screenshot was black, and touch interaction was unreliable. The demo guide includes a manual screenshot checklist. Do not use generated mockups as screenshots of the running app.
 
 ## Remaining work
 
-Lecturer demonstrations of authenticated workflows require a configured Firebase project, deployed rules, and at least two test accounts for social flows. Book discovery uses Open Library without a key and requires internet access. Without Firebase configuration, the sign-in screen remains usable for viewing theme selection, but real account, library, review, and social actions are intentionally unavailable. Further limitations are recorded in [FINAL_PROJECT_REPORT.md](FINAL_PROJECT_REPORT.md).
+Lecturer demonstrations of authenticated workflows require a configured Firebase project, deployed rules, and at least two test accounts for social flows. Book discovery uses Open Library without a key and requires internet access. Without Firebase configuration, the sign-in screen remains usable for viewing theme selection, but real account, library, review, and social actions are intentionally unavailable. Further limitations are recorded in [FINAL_PROJECT_REPORT.md](docs/FINAL_PROJECT_REPORT.md).

@@ -22,6 +22,9 @@ import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.io.IOException
 
+/** The friendly error shown when a book search or lookup fails. */
+class BookRepositoryException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
 class OpenLibraryBookRepository(
     private val api: OpenLibraryApiService,
     private val bookDao: BookDao,
