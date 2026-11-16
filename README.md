@@ -13,7 +13,25 @@ Needs Android 7.0 or newer. If an older Fable is installed, uninstall it first.
 
 ## Current status
 
-Fable 1.0.1 is a Kotlin and Jetpack Compose Android app for discovering books, maintaining a personal reading library, reviewing books, and connecting with readers. It runs against a live Firebase project (email/password sign-in and Cloud Firestore) and has been tested end to end on a physical phone. To build it yourself you need that project's `app/google-services.json`, which is deliberately not in this repository; without it the app still builds and runs, showing a "Firebase setup required" notice. The UI redesign is described in [UI_REDESIGN.md](docs/UI_REDESIGN.md), with screenshots in [docs/redesign-screens](docs/redesign-screens).
+Fable 1.0.1 is a Kotlin and Jetpack Compose Android app for discovering books, maintaining a personal reading library, reviewing books, and connecting with readers. It runs against a live Firebase project (email/password sign-in and Cloud Firestore) and has been tested end to end on a physical phone. To build it yourself you need that project's `app/google-services.json`, which is deliberately not in this repository; without it the app still builds and runs, showing a "Firebase setup required" notice. The UI redesign is described in [UI_REDESIGN.md](docs/UI_REDESIGN.md), with screenshots in [docs/redesign-screens](docs/redesign-screens). A file-by-file code walkthrough with screenshots is in [docs/Fable-Code-Walkthrough.pdf](docs/Fable-Code-Walkthrough.pdf).
+
+| | | | |
+| --- | --- | --- | --- |
+| ![Home](docs/redesign-screens/07-home.png) | ![Book details](docs/redesign-screens/14-details.png) | ![Library](docs/redesign-screens/17-library.png) | ![Discover readers](docs/redesign-screens/22-readers-found.png) |
+
+## Project structure
+
+```text
+app/src/main/java/com/fable/app/
+├─ MainActivity.kt, FableApplication.kt   app entry points
+├─ di/              FableDependencies – builds repositories and ViewModel factories
+├─ domain/          models, repository interfaces, use cases, validation (pure Kotlin)
+├─ data/            local (Room, SharedPreferences), remote (Retrofit, Firestore DTOs), repository implementations
+└─ presentation/    FableApp, splash, auth, books, reading, reviews, social, theme, designsystem
+app/src/test/       JVM unit tests
+docs/               architecture, reports, presentation, screenshots, code walkthrough
+firestore.rules     Cloud Firestore security rules
+```
 
 ## Problem and project goals
 
@@ -33,7 +51,7 @@ Jetpack Compose screens and Navigation
                          Open Library API
 ```
 
-Room stores cached books, search history, user-scoped library records, and review records. Firebase-backed repositories own account, profile, reading, review, and social synchronization. Open Library book search and details are accessed through Retrofit. Local code and automated tests are present for these flows, but Firebase cloud services require their own configuration and have not been live-verified here. See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for data flows and boundaries.
+Room stores cached books, search history, user-scoped library records, and review records. Firebase-backed repositories own account, profile, reading, review, and social synchronization. Open Library book search and details are accessed through Retrofit. These flows are covered by unit tests and have been checked end to end against the live Firebase project on a physical phone. See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for data flows and boundaries.
 
 ## Features implemented
 
@@ -91,18 +109,18 @@ Room stores cached books, search history, user-scoped library records, and revie
 
 Social records remain in Firestore, so Phase 6 does not change the Room schema or require a Room migration. Public aggregate statistics are updated from synced library records. Activity events omit personal notes.
 
-`firestore.rules` restricts owner profile edits, exposes only the separate `publicProfiles` field allowlist to signed-in readers, validates request participants and state transitions, requires reciprocal accepted-request state for mirrored friendships, and limits activity reads to accepted friends. These rules are source code only; no Firebase configuration was available to deploy or live-test them.
+`firestore.rules` restricts owner profile edits, exposes only the separate `publicProfiles` field allowlist to signed-in readers, validates request participants and state transitions, requires reciprocal accepted-request state for mirrored friendships, and limits activity reads to accepted friends. The rules are deployed to the project's Firestore database with the Firebase CLI (`firebase deploy --only firestore:rules`).
 
 ## Reviews and ratings
 
-Book Details shows the Fable average, rating/review count, reviewer usernames, stars, written reviews, and review dates. Each authenticated reviewer has one row per stable `Book.id`; a rating can be saved without written text. The user's review history is available from Home and links back to Book Details. Room caches entries and retains pending local writes; Firestore updates the public book-scoped record and private user history mirror in one batch. Live Firebase review synchronization is unverified until a Firebase project is configured.
+Book Details shows the Fable average, rating/review count, reviewer usernames, stars, written reviews, and review dates. Each authenticated reviewer has one row per stable `Book.id`; a rating can be saved without written text. The user's review history is available from Home and links back to Book Details. Room caches entries and retains pending local writes; Firestore updates the public book-scoped record and private user history mirror in one batch. Saving, updating and deleting a review was verified live on a phone.
 
 ### Personal library schema and sync
 
 - `users/{uid}/library/{entryId}` stores one private `UserBook` per stable book ID. `entryId` is a deterministic SHA-256 digest of that ID; titles are never used for identity. The document contains a book snapshot plus shelf, progress, dates, notes, and completion history.
 - Firestore rules restrict reads and writes to the matching signed-in UID and validate allowed fields, shelf status, page bounds, and note length. The collection is read by its user-specific path without compound filters, so no additional composite index is required.
 - Room's `user_books` table is scoped by `(userId, bookId)`. Local edits remain visible until Firestore acknowledges the matching edit version. An older acknowledgement cannot clear a newer edit. Deletes stay as pending tombstones until acknowledged.
-- Firestore's Android offline queue and the Room pending marker retain writes while offline. A Firestore listener refreshes clean cached entries; pending local edits win until uploaded. Network or rules failures leave pending edits visible as “Waiting to sync”. Live Firebase synchronization is unverified because this workspace has no Firebase project configuration.
+- Firestore's Android offline queue and the Room pending marker retain writes while offline. A Firestore listener refreshes clean cached entries; pending local edits win until uploaded. Network or rules failures leave pending edits visible as “Waiting to sync”. Adding books, moving them between shelves and saving progress were verified live on a phone.
 - Statistics come from saved records: completed books count distinct shelf entries with completion history; pages include recorded completion page counts and current page progress; monthly activity follows completion dates. No reading values are generated when the library has no records.
 
 ## Book discovery
@@ -129,12 +147,16 @@ For a quicker incremental build, run:
 
 The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
-58 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, Phase 6 social behavior, and Phase 7 theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Tests do not prove live Firebase behavior, deployed security rules, or successful runtime access to Open Library. See [FINAL_TEST_REPORT.md](docs/FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](docs/PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
+55 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, social behavior, genre detection, theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Live Firebase and Open Library behaviour was checked manually on a phone (see below). See [FINAL_TEST_REPORT.md](docs/FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](docs/PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
 
 ## Demonstration and screenshots
 
-Use [FABLE_DEMO_GUIDE.md](docs/FABLE_DEMO_GUIDE.md) for a five-to-seven-minute lecturer sequence. No genuine application screenshots were available for inclusion in this README or the presentation: the available headless emulator screenshot was black, and touch interaction was unreliable. The demo guide includes a manual screenshot checklist. Do not use generated mockups as screenshots of the running app.
+Use [FABLE_DEMO_GUIDE.md](docs/FABLE_DEMO_GUIDE.md) for a five-to-seven-minute lecturer sequence. Real screenshots from a Samsung Galaxy S22 running Fable 1.0.1 are in [docs/redesign-screens](docs/redesign-screens), and [docs/Fable-Code-Walkthrough.pdf](docs/Fable-Code-Walkthrough.pdf) pairs each screen with the code behind it.
 
-## Remaining work
+### Verified on a phone
 
-Lecturer demonstrations of authenticated workflows require a configured Firebase project, deployed rules, and at least two test accounts for social flows. Book discovery uses Open Library without a key and requires internet access. Without Firebase configuration, the sign-in screen remains usable for viewing theme selection, but real account, library, review, and social actions are intentionally unavailable. Further limitations are recorded in [FINAL_PROJECT_REPORT.md](docs/FINAL_PROJECT_REPORT.md).
+Sign-up, sign-in and profile setup; Home, Discover, genre pages and Search (Open Library); book details, the "View on Open Library" browser intent and cover images; adding books to shelves and saving reading progress; ratings and reviews; reading statistics; theme selection; reader search by username and sending a friend request between two accounts.
+
+## Notes and limitations
+
+Social features (reader search, friend requests, activity feed) need at least two accounts to demonstrate; a reader never appears in their own search results. Book discovery uses Open Library without a key and requires internet access. Without Firebase configuration, the sign-in screen remains usable for viewing theme selection, but real account, library, review, and social actions are intentionally unavailable. Further limitations are recorded in [FINAL_PROJECT_REPORT.md](docs/FINAL_PROJECT_REPORT.md).
