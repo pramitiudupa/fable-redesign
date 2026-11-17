@@ -329,6 +329,29 @@ private fun BookDetailsContent(
                 )
             }
 
+            // Implicit intent: ACTION_SEND lets the user pick any app that can share text
+            // (WhatsApp, Gmail, Messages…). createChooser shows Android's share sheet.
+            FableButton(
+                text = "Share this book",
+                onClick = {
+                    val shareText = buildString {
+                        append("I'm reading \"${book.title}\"")
+                        book.authors.firstOrNull()?.let { append(" by $it") }
+                        append(" on Fable.")
+                        book.previewLink?.let { append("\n$it") }
+                    }
+                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_SUBJECT, book.title)
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                    }
+                    context.startActivity(Intent.createChooser(sendIntent, "Share this book"))
+                },
+                style = FableButtonStyle.Secondary,
+                icon = FableIcons.Send,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
             OrnamentDivider(ornament = colors.ornament, color = colors.accent, modifier = Modifier.padding(horizontal = 32.dp))
 
             BookReviewsSection(dependencies, userId, username, book, accent = colors.primary)
