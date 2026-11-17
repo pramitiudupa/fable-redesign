@@ -3,7 +3,9 @@ package com.fable.app.reading
 import com.fable.app.data.remote.firestore.libraryDocumentId
 import com.fable.app.domain.model.Book
 import com.fable.app.domain.model.ReadingStatus
+import com.fable.app.domain.model.calculateReadingCompletionRate
 import com.fable.app.domain.model.calculateReadingStatistics
+import com.fable.app.domain.model.calculateRemainingPagesToRead
 import com.fable.app.domain.model.moveUserBook
 import com.fable.app.domain.model.withProgress
 import org.junit.Assert.assertEquals
@@ -88,5 +90,18 @@ class ReadingModelTest {
         assertEquals(libraryDocumentId(book.id), libraryDocumentId(book.id))
         assertFalse(libraryDocumentId(book.id) == libraryDocumentId("google-books:other-volume"))
         assertEquals(64, libraryDocumentId(book.id).length)
+    }
+
+    @Test fun remainingPagesAndCompletionRateCalculateCorrectly() {
+        val bookA = book.copy(id = "open-library:b1", pageCount = 300)
+        val bookB = book.copy(id = "open-library:b2", pageCount = 200)
+        val readingA = moveUserBook(null, "uid-a", bookA, ReadingStatus.CURRENTLY_READING, 10L).withProgress(100, null, 15L)
+        val completedB = moveUserBook(null, "uid-a", bookB, ReadingStatus.READ, 20L)
+
+        val books = listOf(readingA, completedB)
+        assertEquals(200, calculateRemainingPagesToRead(books))
+        assertEquals(50, calculateReadingCompletionRate(books))
+        assertEquals(200, readingA.progress.remainingPages)
+        assertFalse(readingA.progress.isComplete)
     }
 }

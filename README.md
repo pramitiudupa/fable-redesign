@@ -157,7 +157,7 @@ For a quicker incremental build, run:
 
 The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
-55 JVM unit tests cover authentication/profile behavior, book discovery, reading shelves/progress, reviews, social behavior, genre detection, theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Live Firebase and Open Library behaviour was checked manually on a phone (see below). See [FINAL_TEST_REPORT.md](docs/FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](docs/PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
+62 JVM unit tests cover authentication/profile behavior, book discovery and BookIds validation, reading shelves/progress and completion metrics, reviews, social behavior, genre detection, theme definitions, per-user preference restoration, local fallback, and cloud-sync state. The Phase 8 regression test checks that a failed review feed is surfaced while cached reviews remain visible. Live Firebase and Open Library behaviour was checked manually on a phone (see below). See [FINAL_TEST_REPORT.md](docs/FINAL_TEST_REPORT.md) and [PHASE_8_TEST_REPORT.md](docs/PHASE_8_TEST_REPORT.md) for tested scope and manual checks.
 
 ## Demonstration and screenshots
 

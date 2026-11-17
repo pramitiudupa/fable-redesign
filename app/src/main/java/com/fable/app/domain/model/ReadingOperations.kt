@@ -51,3 +51,25 @@ fun UserBook.withProgress(currentPage: Int, personalNotes: String?, now: Long): 
         syncPending = true,
     )
 }
+
+/**
+ * Calculates remaining pages across all books currently being read.
+ */
+fun calculateRemainingPagesToRead(books: List<UserBook>): Int {
+    return books
+        .filter { it.status == ReadingStatus.CURRENTLY_READING }
+        .sumOf { item ->
+            val total = item.totalPages ?: return@sumOf 0
+            (total - item.currentPage).coerceAtLeast(0)
+        }
+}
+
+/**
+ * Calculates the completion rate percentage across all active books (currently reading and completed).
+ */
+fun calculateReadingCompletionRate(books: List<UserBook>): Int? {
+    val activeBooks = books.count { it.status == ReadingStatus.CURRENTLY_READING || it.status == ReadingStatus.READ }
+    if (activeBooks == 0) return null
+    val completedBooks = books.count { it.status == ReadingStatus.READ }
+    return ((completedBooks.toDouble() / activeBooks) * 100).toInt().coerceIn(0, 100)
+}

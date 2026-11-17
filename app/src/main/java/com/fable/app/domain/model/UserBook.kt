@@ -10,7 +10,10 @@ data class ReadingProgress(
     val lastUpdatedAt: Long,
     val finishedAt: Long?,
     val personalNotes: String?,
-)
+) {
+    val remainingPages: Int? get() = totalPages?.let { (it - currentPage).coerceAtLeast(0) }
+    val isComplete: Boolean get() = totalPages != null && totalPages > 0 && currentPage >= totalPages
+}
 
 data class UserBook(
     val userId: String,
